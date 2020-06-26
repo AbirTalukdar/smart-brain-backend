@@ -1,0 +1,25 @@
+{
+  "name": "smart-brain-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start":"nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbirTalukdar/smart-brain-backend.git"
+  },
+  "author": "Imtiaz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AbirTalukdar/smart-brain-backend/issues"
+  },
+  "homepage": "https://github.com/AbirTalukdar/smart-brain-backend#readme",
+  "dependencies": {
+    "D": "^1.0.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4"
+  }
+}
