@@ -52,29 +52,52 @@ app.get('/', (req,res) => {
     res.send(database.users);
 })
 app.post('/signin', (req,res)=>{
-    if(req.body.email === database.users[0].email && req.body.password === database.users[0].password){
-        res.json('success');
-    } else{
-        res.status(400).json('Error loging in...');
-    }
-    
+    db.select('email','hash').from('login')
+    .where('email',"=",req.body.email)
+    .then( data => {
+        const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+        if(isValid){
+            return db.select('*').from('users')
+            .where ('email', '=', req.body.email)
+            .then (user => {
+                res.json(user[0])
+            })
+            .catch(err => res.status(400).json("unable to get user"))
+        } else{
+            res.status(400).json('wrong credentials')
+        }
+
+    })
+    .catch(err => res.status(400).json("Wrong"))
 })
 
 app.post('/register', (req,res)=>{
     const{name, email, password} = req.body;
-    bcrypt.hash(password, null, null, function(err, hash) {
-        
-    });
-    db('users')
-    .returning('*')
-    .insert({
-        email: email,
-        name: name,
-        joined: new Date()
-    })
-    .then(user => {
-        res.json(user[0]);
-    })
+    const hash = bcrypt.hashSync(password);
+     db.transaction(trx =>{
+         trx.insert({
+             hash: hash,
+             email: email
+         })
+         .into('login')
+         .returning('email')
+         .then(loginEmail =>{
+             return trx('users')
+             .returning('*')
+             .insert({
+                 email: loginEmail[0],
+                 name: name,
+                 joined: new Date()
+             })
+             .then(user => {
+                 res.json(user[0]);
+             })
+         })
+         .then(trx.commit)
+         .catch(trx.rollback)
+     })   
+    
+
     .catch(err => res.status(400).json('Unable to Join'))
 });
 app.get('/profile/:id', (req,res)=>{
@@ -95,19 +118,16 @@ app.get('/profile/:id', (req,res)=>{
     // }
 })
 app.put('/image', (req,res)=> {
-    let found = false;
-    const{ id } = req.body;
-    database.users.forEach(user =>{
-        if(user.id === id){
-            found = true;
-            user.entries++;
-            return res.json(user.entries);
-        }
+    const { id } = req.body;
+    db('users').where('id', '=', id)
+    .increment('entries', 1)
+    .returning('entries')
+    .then(entries => {
+      res.json(entries[0]);
     })
-    if(!found){
-        res.status(400).json('not found');
-    }
+    .catch(err => res.status(400).json('unable to get entries'))
 })
+
 
 
 // // Load hash from your password DB.
