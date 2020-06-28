@@ -13,6 +13,7 @@ const database = {
             id: '123',
             name: 'john',
             email: 'john@gmail.com',
+            password: 'cookies',
             entries: 0,
             joined: new Date()
         },
@@ -20,7 +21,7 @@ const database = {
             id: '124',
             name: 'sally',
             email: 'sally@gmail.com',
-
+            password: 'bananas',
             entries: 0,
             joined: new Date()
         }
@@ -75,7 +76,7 @@ app.get('/profile/:id', (req,res)=>{
         res.status(400).json('not found');
     }
 })
-app.post('/image', (req,res)=> {
+app.put('/image', (req,res)=> {
     let found = false;
     const{ id } = req.body;
     database.users.forEach(user =>{
