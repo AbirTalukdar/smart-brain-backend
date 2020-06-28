@@ -3,17 +3,17 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const { response } = require('express');
 
  const db = knex ({
     client: 'pg',
     connection: {
       host : '127.0.0.1',
       user : 'postgres',
-      password : 'your_database_password',
+      password : '24308',
       database : 'smart_brain'
     }
   });
-  console.log(db.select('*').from('users'));
 
 const app = express();
 app.use(bodyParser.json());
@@ -63,30 +63,36 @@ app.post('/signin', (req,res)=>{
 app.post('/register', (req,res)=>{
     const{name, email, password} = req.body;
     bcrypt.hash(password, null, null, function(err, hash) {
-        console.log(hash);
+        
     });
-    database.users.push({
-        id: '124',
-        name: name,
+    db('users')
+    .returning('*')
+    .insert({
         email: email,
-        password: password,
-        entries: 0,
+        name: name,
         joined: new Date()
     })
-    res.json(database.users[database.users.length-1]);
+    .then(user => {
+        res.json(user[0]);
+    })
+    .catch(err => res.status(400).json('Unable to Join'))
 });
 app.get('/profile/:id', (req,res)=>{
-    let found = false;
     const{ id } = req.params;
-    database.users.forEach(user =>{
-        if(user.id === id){
-            found = true;
-            return res.json(user);
+    db.select('*').from('users').where({
+        id:id
+    })
+    .then(user => {
+        if(user.length){
+            res.json(user[0]);
+        } else{
+            res.status(400).json('Not Found')
         }
     })
-    if(!found){
-        res.status(400).json('not found');
-    }
+    .catch(err => res.status(400).json("Not Found"))
+    // if(!found){
+    //     res.status(400).json('not found');
+    // }
 })
 app.put('/image', (req,res)=> {
     let found = false;
