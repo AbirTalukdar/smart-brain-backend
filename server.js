@@ -59,6 +59,6 @@ app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcry
 app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db)})
 app.put('/image', (req, res) => { image.handleImage(req, res, db)})
 
-app.listen(4000,  () =>{
-    console.log('Smart Brain Backend Server Has Started!!!!');
+app.listen(process.env.PORT || 4000,  () =>{
+    console.log(`app is running on port ${process.env.PORT}`);
 })
