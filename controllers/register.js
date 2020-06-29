@@ -1,4 +1,4 @@
-const handelRegister = (req,res)=>{
+const handleRegister = (req, res, db, bcrypt)=>{
     const{name, email, password} = req.body;
     const hash = bcrypt.hashSync(password);
      db.transaction(trx =>{
@@ -26,4 +26,4 @@ const handelRegister = (req,res)=>{
     .catch(err => res.status(400).json('Unable to Join'))
 }
 
-module.exports={handelRegister: handelRegister};
+module.exports={handleRegister: handleRegister};
